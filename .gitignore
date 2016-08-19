@@ -1,0 +1,6 @@
+# system
+*.DS_Store
+
+# text editing
+*.swp
+Session.vim
