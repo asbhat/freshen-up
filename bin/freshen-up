@@ -1,0 +1,50 @@
+#!/bin/bash
+
+OPTIONS='hcU'
+
+UPGRADE=false
+CLEAN=false
+
+function usage {
+    cat << EOF
+
+usage: $(basename $BASH_SOURCE) [-hcU]
+
+ This script updates / upgrades / cleans your Homebrew and pip packages.
+ OPTIONS:
+    -h        Show this message
+    -U        Upgrade applicable Homebrew and pip packages
+    -c        Clean up old Homebrew packages and symbolic links
+EOF
+}
+
+while getopts $OPTIONS option; do
+    case "$option" in
+        h  ) usage; exit 0;;
+        c  ) CLEAN=true;;
+        U  ) UPGRADE=true;;
+        \? ) usage; exit 1;;
+    esac
+done
+
+shift $(( OPTIND -1 ))
+
+# Update homebrew
+echo -e "\x1B[32m------> Updating brew...\x1B[0m"
+brew update
+
+if [[ "$UPGRADE" == true ]]; then
+    echo -e "\x1B[32m------> Upgrading brew...\x1B[0m"
+    brew upgrade
+
+    # Automatically update pip packages
+    echo -e "\x1B[32m------> Upgrading outdated python packages...\x1B[0m"
+    pip list -o | cut -d' ' -f1 | xargs -n1 pip install -U
+fi
+
+if [[ "$CLEAN" == true ]]; then
+    echo -e "\x1B[32m------> Cleaning up brew...\x1B[0m"
+    brew cleanup
+    brew prune
+fi
+
