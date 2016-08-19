@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Check dependencies
+if ! which brew > /dev/null 2>&1; then
+  echo "You do not seem to have brew installed."
+  echo "Please run:"
+  echo -e "\truby -e \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)\""
+  echo "and try again."
+  exit 1
+fi
+
+if ! which pip > /dev/null 2>&1; then
+  echo "You do not seem to have pip installed."
+  echo -e "Please run:\n\tbrew install python\nand try again."
+  exit 1
+fi
+
+if ! which gsed > /dev/null 2>&1; then
+  brew install gnu-sed
+fi
+
+
+# link executables
+for f in bin/*; do
+  ln -s $PWD/$f /usr/local/bin/$(echo "$f" | gsed -E 's#^.*/##g')
+done
+
