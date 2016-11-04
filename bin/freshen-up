@@ -39,7 +39,7 @@ if [[ "$UPGRADE" == true ]]; then
 
     # Automatically update pip packages
     echo -e "\x1B[32m------> Upgrading outdated python packages...\x1B[0m"
-    pip list -o | cut -d' ' -f1 | xargs -n1 pip install -U
+    pip list -o --format=legacy | cut -d' ' -f1 | xargs -n1 pip install -U
 fi
 
 if [[ "$CLEAN" == true ]]; then
