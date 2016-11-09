@@ -10,7 +10,7 @@ function usage {
 
 usage: $(basename $BASH_SOURCE) [-hcU]
 
- This script updates / upgrades / cleans your Homebrew and pip packages.
+ This script updates / upgrades / cleans your Homebrew, pip, and npm packages.
  OPTIONS:
     -h        Show this message
     -U        Upgrade applicable Homebrew and pip packages
@@ -40,11 +40,17 @@ if [[ "$UPGRADE" == true ]]; then
     # Automatically update pip packages
     echo -e "\x1B[32m------> Upgrading outdated python packages...\x1B[0m"
     pip list -o --format=legacy | cut -d' ' -f1 | xargs -n1 pip install -U
+
+    # Upgrade npm
+    echo -e "\x1B[32m------> Upgrading npm...\x1B[0m"
+    npm install npm@latest -g
 fi
 
 if [[ "$CLEAN" == true ]]; then
     echo -e "\x1B[32m------> Cleaning up brew...\x1B[0m"
     brew cleanup
     brew prune
-fi
 
+    echo -e "\x1B[32m------> Cleaning up npm...\x1B[0m"
+    npm cache clean
+fi
