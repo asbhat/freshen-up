@@ -19,9 +19,12 @@ if ! which gsed > /dev/null 2>&1; then
   brew install gnu-sed
 fi
 
+if ! which npm > /dev/null 2>&1; then
+  brew install node
+fi
 
 # link executables
 for f in bin/*; do
-  ln -s $PWD/$f /usr/local/bin/$(echo "$f" | gsed -E 's#^.*/##g')
+  ln -is $PWD/$f /usr/local/bin/$(echo "$f" | gsed -E 's#^.*/##g')
 done
 
