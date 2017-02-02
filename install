@@ -42,7 +42,8 @@ if ! which npm > /dev/null 2>&1; then
     if [[ "$MACOS" == true ]]; then
         brew install node
     elif [[ "$LINUX" == true ]]; then
-        sudo apt-get install node
+        curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+        sudo apt-get install -y nodejs
     fi
 fi
 
