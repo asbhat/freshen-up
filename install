@@ -1,30 +1,52 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+MACOS=false
+LINUX=false
+WIN=false
+
+case "$(uname -s)" in
+    Darwin                      ) MACOS=true;;
+    Linux                       ) LINUX=true;;
+    CYGWIN* | MINGW32* | MSYS*  ) WIN=true;;
+    *                           ) echo "unknown OS"; exit 1;;
+esac
 
 # Check dependencies
-if ! which brew > /dev/null 2>&1; then
-  echo "You do not seem to have brew installed."
-  echo "Please run:"
-  echo -e "\truby -e \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)\""
-  echo "and try again."
-  exit 1
+if [[ "$MACOS" == true ]]; then
+    if ! which brew > /dev/null 2>&1; then
+      echo "You do not seem to have brew installed."
+      echo "Please run:"
+      echo -e "\truby -e \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)\""
+      echo "and try again."
+      exit 1
+    fi
+elif [[ "$LINUX" == true ]]; then
+    if ! which apt-get > /dev/null 2>&1; then
+        echo "You do not seem to have apt-get installed."
+        # TODO update for yum
+        exit 1
+    fi
 fi
 
 if ! which pip > /dev/null 2>&1; then
-  echo "You do not seem to have pip installed."
-  echo -e "Please run:\n\tbrew install python\nand try again."
-  exit 1
-fi
-
-if ! which gsed > /dev/null 2>&1; then
-  brew install gnu-sed
+    echo "You do not seem to have pip installed."
+        if [[ "$MACOS" == true ]]; then
+            echo -e "Please run:\n\tbrew install python\nand try again."
+        elif [[ "$LINUX" == true ]]; then
+            echo -e "Please run:\n\tsudo apt-get install python\nand try again."
+        fi
+    exit 1
 fi
 
 if ! which npm > /dev/null 2>&1; then
-  brew install node
+    if [[ "$MACOS" == true ]]; then
+        brew install node
+    elif [[ "$LINUX" == true ]]; then
+        sudo apt-get install node
+    fi
 fi
 
 # link executables
 for f in bin/*; do
-  ln -is $PWD/$f /usr/local/bin/$(echo "$f" | gsed -E 's#^.*/##g')
+  ln -is $PWD/$f /usr/local/bin/$(echo "$f" | sed 's#^.*/##g')
 done
-

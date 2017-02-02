@@ -1,16 +1,27 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 OPTIONS='hcU'
 
 UPGRADE=false
 CLEAN=false
 
+MACOS=false
+LINUX=false
+WIN=false
+
+case "$(uname -s)" in
+    Darwin                      ) MACOS=true;;
+    Linux                       ) LINUX=true;;
+    CYGWIN* | MINGW32* | MSYS*  ) WIN=true;;
+    *                           ) echo "unknown OS"; exit 1;;
+esac
+
 function usage {
     cat << EOF
 
 usage: $(basename $BASH_SOURCE) [-hcU]
 
- This script updates / upgrades / cleans your Homebrew, pip, and npm packages.
+ This script updates / upgrades / cleans your package managers.
  OPTIONS:
     -h        Show this message
     -U        Upgrade applicable Homebrew and pip packages
@@ -29,27 +40,51 @@ done
 
 shift $(( OPTIND -1 ))
 
-# Update homebrew
-echo -e "\x1B[32m------> Updating brew...\x1B[0m"
-brew update
+# Update homebrew / apt-get
+if [[ "$MACOS" == true ]]; then
+    echo -e "\x1B[32m------> Updating brew...\x1B[0m"
+    brew update
+elif [[ "$LINUX" == true ]]; then
+    echo -e "\x1B[32m------> Updating apt-get...\x1B[0m"
+    sudo apt-get update
+fi
 
 if [[ "$UPGRADE" == true ]]; then
-    echo -e "\x1B[32m------> Upgrading brew...\x1B[0m"
-    brew upgrade
+    if [[ "$MACOS" == true ]]; then
+        echo -e "\x1B[32m------> Upgrading brew...\x1B[0m"
+        brew upgrade
+    elif [[ "$LINUX" == true ]]; then
+        echo -e "\x1B[32m------> Upgrading apt-get...\x1B[0m"
+        sudo apt-get upgrade
+    fi
 
-    # Automatically update pip packages
+    # Automatically upgrade pip packages
     echo -e "\x1B[32m------> Upgrading outdated python packages...\x1B[0m"
-    pip list -o --format=legacy | cut -d' ' -f1 | xargs -n1 pip install -U
+    if [[ "$MACOS" == true ]]; then
+        pip list -o --format=legacy | cut -d' ' -f1 | xargs -n1 pip install -U
+    elif [[ "$LINUX" == true ]]; then
+        sudo pip list -o --format=legacy | cut -d' ' -f1 | xargs -n1 sudo pip install -U
+    fi
 
     # Upgrade npm
     echo -e "\x1B[32m------> Upgrading npm...\x1B[0m"
-    npm install npm@latest -g
+    if [[ "$MACOS" == true ]]; then
+        npm install npm@latest -g
+    elif [[ "$LINUX" == true ]]; then
+        sudo npm install npm@latest -g
+    fi
 fi
 
 if [[ "$CLEAN" == true ]]; then
-    echo -e "\x1B[32m------> Cleaning up brew...\x1B[0m"
-    brew cleanup
-    brew prune
+    if [[ "$MACOS" == true ]]; then
+        echo -e "\x1B[32m------> Cleaning up brew...\x1B[0m"
+        brew cleanup
+        brew prune
+    elif [[ "$LINUX" == true ]]; then
+        echo -e "\x1B[32m------> Cleaning up apt-get...\x1B[0m"
+        sudo apt-get autoremove
+        sudo apt-get autoclean
+    fi
 
     echo -e "\x1B[32m------> Cleaning up npm...\x1B[0m"
     npm cache clean
