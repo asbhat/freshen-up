@@ -14,11 +14,16 @@ esac
 # Check dependencies
 if [[ "$MACOS" == true ]]; then
     if ! which brew > /dev/null 2>&1; then
-      echo "You do not seem to have brew installed."
-      echo "Please run:"
-      echo -e "\truby -e \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)\""
-      echo "and try again."
-      exit 1
+        echo "You do not seem to have brew installed."
+        echo "Please run:"
+        echo -e "\n\truby -e \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)\"\n"
+        echo "and try again."
+        exit 1
+    fi
+    if ! brew ls --versions coreutils > /dev/null 2>&1; then
+        echo "You do not seem to have coreutils installed."
+        echo -e "Please run:\n\n\tbrew install coreutils\n\nand try again."
+        exit 1
     fi
 elif [[ "$LINUX" == true ]]; then
     if ! which apt-get > /dev/null 2>&1; then
@@ -28,13 +33,14 @@ elif [[ "$LINUX" == true ]]; then
     fi
 fi
 
+
 if ! which pip > /dev/null 2>&1; then
     echo "You do not seem to have pip installed."
-        if [[ "$MACOS" == true ]]; then
-            echo -e "Please run:\n\tbrew install python\nand try again."
-        elif [[ "$LINUX" == true ]]; then
-            echo -e "Please run:\n\tsudo apt-get install python\nand try again."
-        fi
+    if [[ "$MACOS" == true ]]; then
+        echo -e "Please run:\n\n\tbrew install python\n\nand try again."
+    elif [[ "$LINUX" == true ]]; then
+        echo -e "Please run:\n\n\tsudo apt-get install python\n\nand try again."
+    fi
     exit 1
 fi
 
@@ -49,5 +55,5 @@ fi
 
 # link executables
 for f in bin/*; do
-  ln -is $PWD/$f /usr/local/bin/$(echo "$f" | sed 's#^.*/##g')
+    ln -is $PWD/$f /usr/local/bin/$(echo "$f" | sed 's#^.*/##g')
 done
