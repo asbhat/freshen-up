@@ -40,6 +40,8 @@ done
 
 shift $(( OPTIND -1 ))
 
+function version_gt() { [[ "$(echo -e "$1\n$2" | gsort -V | head -1)" == "$1" ]]; }
+
 # Update homebrew / apt-get
 if [[ "$MACOS" == true ]]; then
     echo -e "\x1B[32m------> Updating brew...\x1B[0m"
@@ -87,5 +89,9 @@ if [[ "$CLEAN" == true ]]; then
     fi
 
     echo -e "\x1B[32m------> Cleaning up npm...\x1B[0m"
-    npm cache clean
+    if version_gt "5.0.0" $(npm --version); then
+        npm cache clean --force
+    else
+        npm cache clean
+    fi
 fi
