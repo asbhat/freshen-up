@@ -13,7 +13,7 @@ esac
 
 # Check dependencies
 if [[ "$MACOS" == true ]]; then
-    if ! which brew > /dev/null 2>&1; then
+    if ! hash brew > /dev/null 2>&1; then
         echo "You do not seem to have brew installed."
         echo "Please run:"
         echo -e "\n\truby -e \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)\"\n"
@@ -26,7 +26,7 @@ if [[ "$MACOS" == true ]]; then
         exit 1
     fi
 elif [[ "$LINUX" == true ]]; then
-    if ! which apt-get > /dev/null 2>&1; then
+    if ! hash apt-get > /dev/null 2>&1; then
         echo "You do not seem to have apt-get installed."
         # TODO update for yum
         exit 1
@@ -34,17 +34,20 @@ elif [[ "$LINUX" == true ]]; then
 fi
 
 
-if ! which pip > /dev/null 2>&1; then
-    echo "You do not seem to have pip installed."
-    if [[ "$MACOS" == true ]]; then
-        echo -e "Please run:\n\n\tbrew install python\n\nand try again."
-    elif [[ "$LINUX" == true ]]; then
-        echo -e "Please run:\n\n\tsudo apt-get install python\n\nand try again."
+if ! hash pip > /dev/null 2>&1; then
+    # homebrew 1.3.0 installs pip as pip2 (unless you specifically prepend your path)
+    if ! hash pip2 > /dev/null 2>&1; then
+        echo "You do not seem to have pip installed."
+        if [[ "$MACOS" == true ]]; then
+            echo -e "Please run:\n\n\tbrew install python\n\nand try again."
+        elif [[ "$LINUX" == true ]]; then
+            echo -e "Please run:\n\n\tsudo apt-get install python\n\nand try again."
+        fi
+        exit 1
     fi
-    exit 1
 fi
 
-if ! which npm > /dev/null 2>&1; then
+if ! hash npm > /dev/null 2>&1; then
     if [[ "$MACOS" == true ]]; then
         brew install node
     elif [[ "$LINUX" == true ]]; then

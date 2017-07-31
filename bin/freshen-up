@@ -42,6 +42,15 @@ shift $(( OPTIND -1 ))
 
 function version_gt() { [[ "$(echo -e "$1\n$2" | gsort -V | head -1)" == "$1" ]]; }
 
+# homebrew 1.3.0 installs pip as pip2 (unless you specifically prepend your path)
+if [[ "$pip" == "" ]]; then
+    if ! hash pip > /dev/null 2>&1; then
+        pip="pip2"
+    else
+        pip="pip"
+    fi
+fi
+
 # Update homebrew / apt-get
 if [[ "$MACOS" == true ]]; then
     echo -e "\x1B[32m------> Updating brew...\x1B[0m"
@@ -63,9 +72,9 @@ if [[ "$UPGRADE" == true ]]; then
     # Automatically upgrade pip packages
     echo -e "\x1B[32m------> Upgrading outdated python packages...\x1B[0m"
     if [[ "$MACOS" == true ]]; then
-        pip list -o --format=legacy | cut -d' ' -f1 | xargs -n1 pip install -U
+        "$pip" list -o --format=legacy | cut -d' ' -f1 | xargs -n1 "$pip" install -U
     elif [[ "$LINUX" == true ]]; then
-        sudo pip list -o --format=legacy | cut -d' ' -f1 | xargs -n1 sudo pip install -U
+        sudo "$pip" list -o --format=legacy | cut -d' ' -f1 | xargs -n1 sudo "$pip" install -U
     fi
 
     # Upgrade npm
